@@ -8,6 +8,7 @@ public class Food : MonoBehaviour
     //Sets game bounds
     private void Start()
     {
+        Debug.Log($"Food instance created: {gameObject.name}");
         float offset = 0.5f;
 
         minX = -50 + offset;
@@ -42,9 +43,12 @@ public class Food : MonoBehaviour
         return newPosition;
     }
 
-    // private void OnTriggerEnter2D(Collider2D other)
-    // {
-    //     if (other.tag == "Agent")
-    //         this.transform.position = RandomPosition();
-    // }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log($"Collision detected with: {other.gameObject.name}, Tag: {other.tag}");
+        if (other.tag == "Agent"){
+            Debug.Log("OMg he ate me");
+            this.transform.position = RandomPosition();
+        }
+    }
 }
