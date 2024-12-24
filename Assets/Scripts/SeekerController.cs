@@ -10,39 +10,42 @@ public class SeekerController : MonoBehaviour
     private float maxEnergy = 500;
     public float energy;
 
+    //Network Variables
+    [Header("Network Settings")]
+    public NeatNetwork myNetwork;
+    public int myBrainIdx;
+    public int inputNodes = 6;
+    public int outputNodes = 2;
+    public int hiddenNodes = 0;
+
+    //Raycast variables
+    private float[] sensors;
+    private float maxRayDistance;
+    private float minDist;
+    private float maxDist;
+
     void Start()
     {
         energy = maxEnergy;
+        sensors = new float[inputNodes];
     }
 
     void FixedUpdate()
     {
-        float acceleration = 0f;
-        float rotation = 0f;
+        InputSensors();
+        float[] outputs = myNetwork.FeedForwardNetwork(sensors, minDist, maxDist);
 
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            acceleration = 1f;
-        }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            acceleration = -1f;
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            rotation = -1f;
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            rotation = 1f;
-        }
-
-        MoveSeeker(acceleration, rotation);
+        MoveSeeker(outputs[0], outputs[1]);
 
         if (energy <= 0)
             Death();
         else
             energy--;
+    }
+
+    private void InputSensors()
+    {
+
     }
 
     //Takes in acceleration and rotation to move
@@ -68,7 +71,6 @@ public class SeekerController : MonoBehaviour
         if (other.tag == "Food")
         {
             energy += 250;
-            Debug.Log("Ate food");
         }
     }
 }

@@ -8,7 +8,6 @@ public class Food : MonoBehaviour
     //Sets game bounds
     private void Start()
     {
-        Debug.Log($"Food instance created: {gameObject.name}");
         float offset = 0.5f;
 
         minX = -50 + offset;
@@ -21,12 +20,10 @@ public class Food : MonoBehaviour
     }
 
     private void SpawnFood(int n){
-        Debug.Log("Spawn");
         for (int i = 0; i < n; i++)
         {
             Transform food = Instantiate(foodPrefab);
             food.position = RandomPosition();
-            Debug.Log($"Spawned food at {food.position}");
         }
     }
     
@@ -45,9 +42,7 @@ public class Food : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Collision detected with: {other.gameObject.name}, Tag: {other.tag}");
         if (other.tag == "Agent"){
-            Debug.Log("OMg he ate me");
             this.transform.position = RandomPosition();
         }
     }
