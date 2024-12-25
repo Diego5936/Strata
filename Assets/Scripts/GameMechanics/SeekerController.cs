@@ -43,6 +43,7 @@ public class SeekerController : MonoBehaviour
             Death();
     }
 
+    //Resets network, sensors, energy and position
     public void ResetSeeker(int brainIdx, NeatNetwork network, int sensors)
     {
         myBrainIdx = brainIdx;
@@ -57,6 +58,7 @@ public class SeekerController : MonoBehaviour
         startTime = Time.time;
     }
 
+    //Raycasts
     private void InputSensors()
     {
         Vector2 position2D = (Vector2)(transform.position) + (Vector2)transform.up * 0.75f;
@@ -91,7 +93,7 @@ public class SeekerController : MonoBehaviour
         energy--;
     }
 
-    //Resets seeker position
+    //Passes seeker stats to GeneManager and disables object
     private void Death()
     {
         CalculateFitness();
