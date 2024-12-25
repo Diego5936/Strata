@@ -1,14 +1,13 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SeekerController : MonoBehaviour
 {
+    //Utils
+    private GeneManager geneManager;
+
     //Seeker Controls
     private float moveSpeed = 0.2f;
     private float rotationSpeed = 4;
-
-    //Seeker Stats
     private float maxEnergy = 500;
     public float energy;
 
@@ -16,9 +15,7 @@ public class SeekerController : MonoBehaviour
     [Header("Network Settings")]
     public NeatNetwork myNetwork;
     public int myBrainIdx;
-    public int inputNodes = 6;
-    public int outputNodes = 2;
-    public int hiddenNodes = 0;
+    public int sensorsNum;
 
     //Raycast variables
     private float[] sensors;
@@ -26,9 +23,10 @@ public class SeekerController : MonoBehaviour
 
     void Start()
     {
-        myNetwork = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
+        geneManager = GameObject.FindObjectOfType<GeneManager>();
+
         energy = maxEnergy;
-        sensors = new float[inputNodes];
+        sensors = new float[sensorsNum];
     }
 
     void FixedUpdate()
@@ -40,8 +38,6 @@ public class SeekerController : MonoBehaviour
 
         if (energy <= 0)
             Death();
-        else
-            energy--;
     }
 
     private void InputSensors()
@@ -74,12 +70,16 @@ public class SeekerController : MonoBehaviour
         transform.position += transform.up * acceleration * moveSpeed;
 
         transform.Rotate(Vector3.forward * -rotation * rotationSpeed);
+
+        energy--;
     }
 
     //Resets seeker position
     private void Death()
     {
-        transform.position = Vector3.zero;
+        geneManager.seekerDeath();
+
+        gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

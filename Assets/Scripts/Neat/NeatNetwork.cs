@@ -53,7 +53,7 @@ public class NeatNetwork
         return initGenome;
     }
 
-    //Puplates network attributes, transforming from genome
+    //Populates network attributes, transforming from genome
     private void CreateNetwork()
     {
         //Populates Nodes
