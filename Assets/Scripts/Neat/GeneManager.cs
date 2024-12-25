@@ -26,15 +26,14 @@ public class GeneManager : MonoBehaviour
         allSeekers = new GameObject[startingPopulation];
         allNetworks = new NeatNetwork[startingPopulation];
 
-        StartingNetworks();
         SpawnPopulation();
     }
 
-    void StartingNetworks()
+    void FixedUpdate()
     {
-        for (int i = 0; i < startingPopulation; i++)
+        if (currentAlive <= 0)
         {
-            allNetworks[i] = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
+            Repopulate();
         }
     }
 
@@ -42,16 +41,36 @@ public class GeneManager : MonoBehaviour
     {
         for (int i = 0; i < startingPopulation; i++)
         {
-            Vector2 seekerPosition = Utils.RandomPosition();
+            allNetworks[i] = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
 
-            GameObject seekerObject = Instantiate(seekerPrefab, seekerPosition, Quaternion.identity);
-            SeekerController seeker = seekerObject.GetComponent<SeekerController>();
+            GameObject seeker = Instantiate(seekerPrefab, Utils.RandomPosition(), Quaternion.identity);
+            SeekerController seekerController = seeker.GetComponent<SeekerController>();
 
-            seeker.myBrainIdx = i;
-            seeker.myNetwork = allNetworks[i];
-            seeker.sensorsNum = inputNodes;
+            seekerController.ResetSeeker(i, allNetworks[i], inputNodes);
 
-            allSeekers[i] = seekerObject; 
+            allSeekers[i] = seeker;
+        }
+
+        GameObject.FindObjectOfType<Food>().SpawnFood(startingPopulation * 2);
+        currentAlive = startingPopulation;
+    }
+
+    void Repopulate()
+    {
+        //sort all networks by fitness
+        //set new population networks
+
+        RespawnPopulation();
+    }
+
+    void RespawnPopulation()
+    {
+        for (int i = 0; i < startingPopulation; i++)
+        {
+            GameObject seeker = allSeekers[i];
+            SeekerController seekerController = seeker.GetComponent<SeekerController>();
+
+            seekerController.ResetSeeker(i, allNetworks[i], inputNodes);
         }
 
         currentAlive = startingPopulation;

@@ -546,7 +546,7 @@ GameObject:
   - component: {fileID: 908611211}
   - component: {fileID: 908611210}
   m_Layer: 0
-  m_Name: Food
+  m_Name: FoodManager
   m_TagString: Food
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -975,6 +975,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 848731830}
+  - {fileID: 908611211}
   - {fileID: 519420032}
   - {fileID: 749408154}
-  - {fileID: 908611211}
