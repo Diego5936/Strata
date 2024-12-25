@@ -10,6 +10,8 @@ public class NeatNetwork
     List<Node> hiddenNodes;
     List<Connection> allConnections;
 
+    public float fitness; 
+
     public NeatNetwork(int inp, int oup, int hid)
     {
         myGenome = CreateInitialGenome(inp, oup, hid);

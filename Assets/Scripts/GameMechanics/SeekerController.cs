@@ -21,6 +21,10 @@ public class SeekerController : MonoBehaviour
     private float[] sensors;
     private float maxRayDistance = 60f;
 
+    //Seeker stats
+    public float fitness;
+    private float startTime;
+
     void Start()
     {
         geneManager = GameObject.FindObjectOfType<GeneManager>();
@@ -37,6 +41,20 @@ public class SeekerController : MonoBehaviour
 
         if (energy <= 0)
             Death();
+    }
+
+    public void ResetSeeker(int brainIdx, NeatNetwork network, int sensors)
+    {
+        myBrainIdx = brainIdx;
+        myNetwork = network;
+        sensorsNum = sensors;
+        energy = maxEnergy;
+
+        transform.position = Utils.RandomPosition();
+        transform.rotation = Quaternion.identity;
+        gameObject.SetActive(true);
+
+        startTime = Time.time;
     }
 
     private void InputSensors()
@@ -76,21 +94,15 @@ public class SeekerController : MonoBehaviour
     //Resets seeker position
     private void Death()
     {
-        geneManager.seekerDeath();
+        CalculateFitness();
+        geneManager.seekerDeath(myBrainIdx, fitness);
 
         gameObject.SetActive(false);
     }
 
-    public void ResetSeeker(int brainIdx, NeatNetwork network, int sensors)
+    private void CalculateFitness()
     {
-        myBrainIdx = brainIdx;
-        myNetwork = network;
-        sensorsNum = sensors;
-        energy = maxEnergy;
-
-        transform.position = Utils.RandomPosition();
-        transform.rotation = Quaternion.identity;
-        gameObject.SetActive(true);
+        fitness = Time.time - startTime;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

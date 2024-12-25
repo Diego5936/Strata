@@ -57,10 +57,38 @@ public class GeneManager : MonoBehaviour
 
     void Repopulate()
     {
-        //sort all networks by fitness
-        //set new population networks
-
+        SortByFitness();
+        SetNewPopulationNetworks();
         RespawnPopulation();
+        currentGeneration++;
+    }
+
+    void SetNewPopulationNetworks()
+    {
+        NeatNetwork[] newNetworks = new NeatNetwork[startingPopulation];
+
+        for (int i = 0; i < startingPopulation; i++)
+        {
+            if (i < keepBest)
+            {
+                newNetworks[i] = allNetworks[i];
+            }
+            else if (i < startingPopulation - dropWorst)
+            {
+                newNetworks[i] = allNetworks[i];
+            }
+            else
+            {
+                newNetworks[i] = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
+            }
+        }
+
+        allNetworks = newNetworks;
+    }
+
+    void SortByFitness()
+    {
+        System.Array.Sort(allNetworks, (a, b) => b.fitness.CompareTo(a.fitness));
     }
 
     void RespawnPopulation()
@@ -76,8 +104,9 @@ public class GeneManager : MonoBehaviour
         currentAlive = startingPopulation;
     }
 
-    public void seekerDeath()
+    public void seekerDeath(int brainIdx, float fitness)
     {
+        allNetworks[brainIdx].fitness = fitness;
         currentAlive--;
     }
 }

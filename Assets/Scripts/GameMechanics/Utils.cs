@@ -4,7 +4,7 @@ public static class Utils
 {
     public static Vector3 RandomPosition()
     {
-        float offset = 0.5f;
+        float offset = 2;
         float minX = -50 + offset;
         float maxX = 50 - offset;
         float minY = -20 + offset;
