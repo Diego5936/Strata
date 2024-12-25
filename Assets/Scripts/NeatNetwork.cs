@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine;
 using System;
 
 public class NeatNetwork
@@ -41,14 +38,14 @@ public class NeatNetwork
 
         for (int i = 0; i < oup; i++)
         {
-            NodeGene newNodeGene = new NodeGene(nodeID, NodeGene.LAYER.Input);
+            NodeGene newNodeGene = new NodeGene(nodeID, NodeGene.LAYER.Output);
             initGenome.nodeGenes.Add(newNodeGene);
             nodeID++;
         }
 
         for (int i = 0; i < hid; i++)
         {
-            NodeGene newNodeGene = new NodeGene(nodeID, NodeGene.LAYER.Input);
+            NodeGene newNodeGene = new NodeGene(nodeID, NodeGene.LAYER.Hidden);
             initGenome.nodeGenes.Add(newNodeGene);
             nodeID++;
         }
@@ -88,7 +85,7 @@ public class NeatNetwork
         }
 
         //Adds connections in the Node's lists
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^OPTIMIZE
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^TO BE OPTIMIZED
         foreach (Node node in allNodes)
         {
             foreach (Connection con in allConnections)
@@ -101,13 +98,13 @@ public class NeatNetwork
         }
     }
 
-    public float[] FeedForwardNetwork(float[] inputs, float minSensorRange, float maxSensorRange)
+    public float[] FeedForwardNetwork(float[] inputs)
     {
         float[] outputs = new float[outputNodes.Count];
 
         for (int i = 0; i < inputNodes.Count; i++)
         {
-            inputNodes[i].SetInputNodeValue(inputs[i], minSensorRange, maxSensorRange);
+            inputNodes[i].SetInputNodeValue(inputs[i]);
             inputNodes[i].FeedForwardValue();
 
             inputNodes[i].value = 0;
@@ -123,7 +120,7 @@ public class NeatNetwork
 
         for (int i = 0; i < outputNodes.Count; i++)
         {
-            outputNodes[i].SetHiddenNodeValue();
+            outputNodes[i].SetOutputNodeValue();
             outputs[i] = outputNodes[i].value;
 
             outputNodes[i].value = 0;
@@ -148,10 +145,9 @@ public class Node
     }
 
     //Sets input layer to game sensors
-    public void SetInputNodeValue(float val, float minSensorRange, float maxSensorRange)
+    public void SetInputNodeValue(float val)
     {
-        //Normalize to [-1,1]
-        value = 2 * (val - minSensorRange) / (maxSensorRange - minSensorRange) - 1;
+        value = val;
     }
 
     //Sets hidden layer from input connections
@@ -172,7 +168,7 @@ public class Node
     public void SetOutputNodeValue()
     {
         float val = 0;
-
+        
         foreach (Connection con in inputConnections)
         {
             if (con.isEnabled)

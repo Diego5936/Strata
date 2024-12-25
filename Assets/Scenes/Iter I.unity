@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 908611210}
   m_Layer: 0
   m_Name: Food
-  m_TagString: Untagged
+  m_TagString: Food
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -819,6 +819,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   energy: 0
+  myBrainIdx: 0
+  inputNodes: 6
+  outputNodes: 2
+  hiddenNodes: 0
 --- !u!61 &1732117187
 BoxCollider2D:
   m_ObjectHideFlags: 0
