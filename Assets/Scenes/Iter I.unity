@@ -515,10 +515,10 @@ MonoBehaviour:
   inputNodes: 6
   outputNodes: 2
   hiddenNodes: 0
+  compThreshold: 3
   currentGeneration: 0
-  startingPopulation: 5
-  keepBest: 0
-  dropWorst: 0
+  startingPopulation: 10
+  cullPercent: 0.5
   currentAlive: 0
 --- !u!4 &848731830
 Transform:

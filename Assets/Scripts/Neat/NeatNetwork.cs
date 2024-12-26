@@ -69,9 +69,17 @@ public class NeatNetwork
         return initGenome;
     }
 
+    public void MutateNetwork()
+    {
+        myGenome.MutateGenome();
+        CreateNetwork();
+    }
+
     //Populates network attributes, transforming from genome
     private void CreateNetwork()
     {
+        ResetNetwork();
+
         //Populates Nodes
         foreach (NodeGene nodeGene in myGenome.nodeGenes)
         {
@@ -114,10 +122,13 @@ public class NeatNetwork
         }
     }
 
-    public void MutateNetwork()
+    private void ResetNetwork()
     {
-        myGenome.MutateGenome();
-        CreateNetwork();
+        allNodes.Clear();
+        inputNodes.Clear();
+        outputNodes.Clear();
+        hiddenNodes.Clear();
+        allConnections.Clear();
     }
 
     //Passes information through network

@@ -30,10 +30,12 @@ public class NeatGenome
         if (sRoll <= newNodeProb)
         {
             CreateNewNode();
+            UnityEngine.Debug.Log("New node");
         }
         if (sRoll <= newConProb)
         {
             CreateNewConnection();
+            UnityEngine.Debug.Log("New con");
         }
 
         //Weight Mutation

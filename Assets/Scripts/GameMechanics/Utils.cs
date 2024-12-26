@@ -69,8 +69,11 @@ public class Utils
         int disjoint = 0, excess = 0, matchingCount = 0;
         float aWd = 0;
 
+        int maxInnov1 = firstCons.Count > 0 ? firstCons.Last().innovNum : 0;
+        int maxInnov2 = secondCons.Count > 0 ? secondCons.Last().innovNum : 0;
+
         //Calculates the point in which one list innovs ends as the other continues (for excess vs disjoint)
-        int innovRange = Math.Min(firstCons.Last().innovNum, secondCons.Last().innovNum);
+        int innovRange = Math.Min(maxInnov1, maxInnov2);
 
         CompareConnections
         (
