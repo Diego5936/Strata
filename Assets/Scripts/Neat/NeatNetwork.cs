@@ -100,6 +100,12 @@ public class NeatNetwork
         }
     }
 
+    public void MutateNetwork()
+    {
+        myGenome.MutateGenome();
+        CreateNetwork();
+    }
+
     public float[] FeedForwardNetwork(float[] inputs)
     {
         float[] outputs = new float[outputNodes.Count];

@@ -23,17 +23,39 @@ public class NeatGenome
     public void MutateGenome()
     {
         //Structural Mutations
-        float newNodeProb = 5;
-        float newConProb = 60;
-        float roll = UnityEngine.Random.Range(0f, 100f);
+        float newNodeProb = 3;
+        float newConProb = 5;
+        float sRoll = UnityEngine.Random.Range(0f, 100f);
 
-        if (roll <= newNodeProb)
+        if (sRoll <= newNodeProb)
         {
             CreateNewNode();
         }
-        if (roll <= newConProb)
+        if (sRoll <= newConProb)
         {
             CreateNewConnection();
+        }
+
+        //Weight Mutation
+        foreach (ConGene con in conGenes)
+        {
+            float weightMutationProb = 80;
+            float wRoll = UnityEngine.Random.Range(0f, 100f);
+
+            if (wRoll <= weightMutationProb)
+            {
+                float perturbWeightProb = 90;
+                float tRoll = UnityEngine.Random.Range(0f, 100f);
+
+                if (tRoll <= perturbWeightProb)
+                {
+                    con.weight += UnityEngine.Random.Range(-0.1f, 0.1f);
+                }
+                else //10% chance to apply random weight
+                {
+                    con.weight = UnityEngine.Random.Range(-1, 1);
+                }
+            }
         }
     }
 
@@ -57,11 +79,11 @@ public class NeatGenome
         nodeGenes.Add(newNode);
 
         //Splits original connection in two
-        int nextInnovNum = conGenes.Last().innovNum + 1;
+        int nextInnovNum = InnovationTracker.GetInnovNum(inNode, newNode.id);
         ConGene firstNewCon = new ConGene(inNode, newNode.id, 1, true, nextInnovNum);
         conGenes.Add(firstNewCon);
 
-        nextInnovNum = conGenes.Last().innovNum + 1;
+        nextInnovNum = InnovationTracker.GetInnovNum(newNode.id, outNode);
         ConGene secondNewCon = new ConGene(newNode.id, outNode, randomCon.weight, true, nextInnovNum);
         conGenes.Add(secondNewCon);
     }
@@ -104,7 +126,7 @@ public class NeatGenome
 
             //Create valid connection
             float weight = UnityEngine.Random.Range(-1f,1f);
-            int innov = conGenes.Last().innovNum + 1;
+            int innov = InnovationTracker.GetInnovNum(inNode.id, outNode.id);
 
             ConGene newConnection = new ConGene(inNode.id, outNode.id, weight, true, innov);
             conGenes.Add(newConnection);               

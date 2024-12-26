@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GeneManager : MonoBehaviour
@@ -25,6 +27,8 @@ public class GeneManager : MonoBehaviour
     {
         allSeekers = new GameObject[startingPopulation];
         allNetworks = new NeatNetwork[startingPopulation];
+
+        InnovationTracker.Reset();
 
         SpawnPopulation();
     }
@@ -108,5 +112,34 @@ public class GeneManager : MonoBehaviour
     {
         allNetworks[brainIdx].fitness = fitness;
         currentAlive--;
+    }
+}
+
+//Tracks historical evolution markers
+public static class InnovationTracker
+{
+    static Dictionary<Tuple<int, int>, int> globalInnovations = new Dictionary<Tuple<int, int>, int>();
+    static int innovationNum = 0;
+
+    public static int GetInnovNum(int inNode, int outNode)
+    {
+        var con = Tuple.Create(inNode, outNode);
+
+        if (globalInnovations.TryGetValue(con, out int innov))
+        {
+            return innov; //Already exists
+        }
+        else
+        {
+            innovationNum++;
+            globalInnovations[con] = innovationNum;
+            return innovationNum;
+        }
+    }
+
+    public static void Reset()
+    {
+        globalInnovations.Clear();
+        innovationNum = 0;
     }
 }
