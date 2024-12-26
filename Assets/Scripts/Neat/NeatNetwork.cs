@@ -3,18 +3,32 @@ using System;
 
 public class NeatNetwork
 {
-    NeatGenome myGenome;
+    public NeatGenome myGenome;
     List<Node> allNodes;
     List<Node> inputNodes;
     List<Node> outputNodes;
     List<Node> hiddenNodes;
     List<Connection> allConnections;
 
-    public float fitness; 
+    public float fitness;
+    public float selectionProb;
 
     public NeatNetwork(int inp, int oup, int hid)
     {
         myGenome = CreateInitialGenome(inp, oup, hid);
+
+        allNodes = new List<Node>();
+        inputNodes = new List<Node>();
+        outputNodes = new List<Node>();
+        hiddenNodes = new List<Node>();
+        allConnections = new List<Connection>();
+
+        CreateNetwork();
+    }
+
+    public NeatNetwork(NeatGenome genome)
+    {
+        myGenome = genome;
 
         allNodes = new List<Node>();
         inputNodes = new List<Node>();
@@ -106,6 +120,7 @@ public class NeatNetwork
         CreateNetwork();
     }
 
+    //Passes information through network
     public float[] FeedForwardNetwork(float[] inputs)
     {
         float[] outputs = new float[outputNodes.Count];

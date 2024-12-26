@@ -44,12 +44,13 @@ public class SeekerController : MonoBehaviour
     }
 
     //Resets network, sensors, energy and position
-    public void ResetSeeker(int brainIdx, NeatNetwork network, int sensors)
+    public void ResetSeeker(int brainIdx, NeatNetwork network, int sensors, Color color)
     {
         myBrainIdx = brainIdx;
         myNetwork = network;
         sensorsNum = sensors;
         energy = maxEnergy;
+        gameObject.GetComponent<SpriteRenderer>().color = color;
 
         transform.position = Utils.RandomPosition();
         transform.rotation = Quaternion.identity;

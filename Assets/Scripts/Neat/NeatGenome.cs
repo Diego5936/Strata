@@ -6,7 +6,7 @@ public class NeatGenome
 {
     public List<NodeGene> nodeGenes;
     public List<ConGene> conGenes;
-    private HashSet<Tuple<int, int>> existingConnections;
+    HashSet<Tuple<int, int>> existingConnections;
 
     public NeatGenome()
     {
