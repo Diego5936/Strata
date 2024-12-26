@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GeneManager : MonoBehaviour
@@ -22,15 +23,29 @@ public class GeneManager : MonoBehaviour
     public float compThreshold = 3;
 
     //Current Session
-    [Header("Current Session")]
-    public int currentGeneration = 0;
+    [Header("Session Settings")]
     public int startingPopulation;
     public float cullPercent = 0.5f;
-    public int currentAlive;
-
-    //Util
-    float populationFitness;
     float justMutatePercent = 0.25f;
+
+    [Header("Current Session")]
+    public int currentGeneration = 0;
+    public int currentAlive;
+    public int speciesCount;
+
+    float populationFitness;
+    List<float> allAvgPopFitness = new List<float>();
+
+    [Header("Generational Stats")]
+    public float avgPopulationFitness;
+    public float lastAvgPopFitness;
+    public float fitnessDifference;
+
+    [Header("CHAMPION")]
+    public int champGeneration;
+    public float champFitness = 0;
+    public int foodEaten;
+
 
     void Start()
     {
@@ -73,19 +88,41 @@ public class GeneManager : MonoBehaviour
 
     void Repopulate()
     {
+        //Fitness calculation
         Array.Sort(allNetworks, (a, b) => b.fitness.CompareTo(a.fitness));
         populationFitness = allNetworks.Sum(network => network.fitness);
-        
+
+        //Population stats
+        avgPopulationFitness = populationFitness / startingPopulation;
+        allAvgPopFitness.Add((float)Math.Round(avgPopulationFitness, 2));
+
+        int lastGenIdx = currentGeneration - 1;
+        lastAvgPopFitness = lastGenIdx >= 0 ? allAvgPopFitness[lastGenIdx] : 0;
+
+        fitnessDifference = (float)Math.Round(avgPopulationFitness - lastAvgPopFitness, 2);
+
+        //Champion stats
+        NeatNetwork populationBest = allNetworks.First();
+        if (populationBest.fitness > champFitness)
+        {
+            champFitness = populationBest.fitness;
+            champGeneration = currentGeneration;
+            foodEaten = populationBest.foodEaten;
+        }
+
+        //Speciation and Respawn
         SpeciatePopulation();
         CalculateFitnessSharing();
         SetNewPopulationNetworks();
         RespawnPopulation();
+
         currentGeneration++;
     }
 
     void SpeciatePopulation()
     {
-        //Resets existing species
+        //Resets existing 
+        speciesCount = 0;
         allSpecies.Clear();
         if (speciesDic == null)
             speciesDic = new Dictionary<NeatNetwork, NeatSpecies>();
@@ -99,7 +136,7 @@ public class GeneManager : MonoBehaviour
 
             foreach (NeatSpecies species in allSpecies)
             {
-                float compDist = Utils.GetCompatabilityDistance(seeker.myGenome, species.mascot.myGenome);
+                float compDist = NeatUtils.GetCompatabilityDistance(seeker.myGenome, species.mascot.myGenome);
 
                 if (compDist < compThreshold)
                 {
@@ -119,6 +156,7 @@ public class GeneManager : MonoBehaviour
                 NeatSpecies newSpecies = new NeatSpecies(seeker);
                 allSpecies.Add(newSpecies);
                 speciesDic.Add(seeker, newSpecies);
+                speciesCount++;
             }
         }
     }
@@ -182,7 +220,7 @@ public class GeneManager : MonoBehaviour
                     NeatNetwork parent1 = FitnessProportionateSelect(species);
                     NeatNetwork parent2 = FitnessProportionateSelect(species);
 
-                    NeatGenome offspringGenome = Utils.Crossover(parent1.myGenome, parent2.myGenome,
+                    NeatGenome offspringGenome = NeatUtils.Crossover(parent1.myGenome, parent2.myGenome,
                                                                     parent1.fitness, parent2.fitness);
                     offspring = new NeatNetwork(offspringGenome);
                 }
@@ -201,7 +239,7 @@ public class GeneManager : MonoBehaviour
             NeatNetwork parent1 = FitnessProportionateSelect(bestSpecies);
             NeatNetwork parent2 = FitnessProportionateSelect(bestSpecies);
 
-            NeatGenome offspringGenome = Utils.Crossover(parent1.myGenome, parent2.myGenome,
+            NeatGenome offspringGenome = NeatUtils.Crossover(parent1.myGenome, parent2.myGenome,
                                                             parent1.fitness, parent2.fitness);
             NeatNetwork offspring = new NeatNetwork(offspringGenome);
 
@@ -245,9 +283,10 @@ public class GeneManager : MonoBehaviour
         currentAlive = startingPopulation;
     }
 
-    public void seekerDeath(int brainIdx, float fitness)
+    public void seekerDeath(int brainIdx, float fitness, int foodEaten)
     {
         allNetworks[brainIdx].fitness = fitness;
+        allNetworks[brainIdx].foodEaten = foodEaten;
         currentAlive--;
     }
 }
@@ -291,10 +330,11 @@ public class NeatSpecies
     public NeatSpecies(NeatNetwork startingMember)
     {
         mascot = startingMember;
-        members = new List<NeatNetwork>();
-        members.Add(startingMember);
+        members = new List<NeatNetwork>{startingMember};
 
         speciesFitness = startingMember.fitness;
-        speciesColor = new Color(UnityEngine.Random.Range(0f,255f)/255f, UnityEngine.Random.Range(0f,255f)/255f, UnityEngine.Random.Range(0f,255f)/255f);
+        speciesColor = new Color(UnityEngine.Random.Range(0f,255f)/255f, 
+                                UnityEngine.Random.Range(0f,255f)/255f, 
+                                UnityEngine.Random.Range(0f,255f)/255f);
     }
 }

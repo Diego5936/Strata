@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Food : MonoBehaviour
+class Food : MonoBehaviour
 {
     public Transform foodPrefab;
 

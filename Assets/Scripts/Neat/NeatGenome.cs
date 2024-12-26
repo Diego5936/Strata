@@ -23,19 +23,17 @@ public class NeatGenome
     public void MutateGenome()
     {
         //Structural Mutations
-        float newNodeProb = 3;
-        float newConProb = 5;
+        float newNodeProb = 3f;
+        float newConProb = 5f;
         float sRoll = UnityEngine.Random.Range(0f, 100f);
 
         if (sRoll <= newNodeProb)
         {
             CreateNewNode();
-            UnityEngine.Debug.Log("New node");
         }
         if (sRoll <= newConProb)
         {
             CreateNewConnection();
-            UnityEngine.Debug.Log("New con");
         }
 
         //Weight Mutation

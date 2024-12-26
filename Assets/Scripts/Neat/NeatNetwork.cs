@@ -11,6 +11,7 @@ public class NeatNetwork
     List<Connection> allConnections;
 
     public float fitness;
+    public int foodEaten;
     public float selectionProb;
 
     public NeatNetwork(int inp, int oup, int hid)
@@ -152,9 +153,10 @@ public class NeatNetwork
             hiddenNodes[i].value = 0;
         }
 
+        //Specific setting for output nodes: Acceleration, Rotation
         for (int i = 0; i < outputNodes.Count; i++)
         {
-            outputNodes[i].SetOutputNodeValue();
+            outputNodes[i].SetOutputNodeValue(i);
             outputs[i] = outputNodes[i].value;
 
             outputNodes[i].value = 0;
@@ -199,7 +201,7 @@ public class Node
     }
 
     //Sets output later from input connections
-    public void SetOutputNodeValue()
+    public void SetOutputNodeValue(int i)
     {
         float val = 0;
         
@@ -209,7 +211,10 @@ public class Node
                 val += con.weight * con.inputNodeValue;            
         }
 
-        value = Tanh(val);
+        if (i == 0)
+            value = Sigmoid(val); // Acceleration [0, 1]     
+        else   
+            value = Tanh(val); //Rotation [-1, 1]
     }
 
     //Passes value on to connection
@@ -224,6 +229,11 @@ public class Node
     private float Tanh(float x)
     {
         return (float)Math.Tanh(x);
+    }
+
+    private float Sigmoid(float x)
+    {
+        return 1 / (1 + (float)Math.Exp(-x));
     }
 }
 

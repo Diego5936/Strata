@@ -3,13 +3,12 @@ using UnityEngine;
 public class SeekerController : MonoBehaviour
 {
     //Utils
-    private GeneManager geneManager;
+    GeneManager geneManager;
 
     //Seeker Controls
-    private float moveSpeed = 0.2f;
-    private float rotationSpeed = 4;
-    private int maxEnergy = 500;
-    public float energy;
+    float moveSpeed = 0.2f;
+    float rotationSpeed = 4f;
+    int maxEnergy = 500; 
 
     //Network Variables
     [Header("Network Settings")]
@@ -18,10 +17,12 @@ public class SeekerController : MonoBehaviour
     public int sensorsNum;
 
     //Raycast variables
-    private float[] sensors;
-    private float maxRayDistance = 60f;
+    float[] sensors;
+    float maxRayDistance = 200f;
 
-    //Seeker stats
+    [Header("Seeker STATS")]
+    public float energy;
+    public int foodEaten;
     public float fitness;
     private float startTime;
 
@@ -50,10 +51,9 @@ public class SeekerController : MonoBehaviour
         myNetwork = network;
         sensorsNum = sensors;
         energy = maxEnergy;
-        gameObject.GetComponent<SpriteRenderer>().color = color;
+        this.gameObject.GetComponent<SpriteRenderer>().color = color;
 
-        transform.position = Utils.RandomPosition();
-        transform.rotation = Quaternion.identity;
+        transform.SetPositionAndRotation(Utils.RandomPosition(), Quaternion.identity);
         gameObject.SetActive(true);
 
         startTime = Time.time;
@@ -62,7 +62,7 @@ public class SeekerController : MonoBehaviour
     //Raycasts
     private void InputSensors()
     {
-        Vector2 position2D = (Vector2)(transform.position) + (Vector2)transform.up * 0.75f;
+        Vector2 position2D = (Vector2)(transform.position) + (Vector2)transform.up * (GetComponent<SpriteRenderer>().bounds.extents.y + 0.1f);
 
         RaycastHit2D forwardRay = Physics2D.Raycast(position2D, transform.up, maxRayDistance);
         sensors[0] = (forwardRay.collider != null && forwardRay.collider.CompareTag("Border")) ? forwardRay.distance / maxRayDistance: 1;
@@ -79,9 +79,9 @@ public class SeekerController : MonoBehaviour
         sensors[5] = (leftRay.collider != null && leftRay.collider.CompareTag("Food")) ? 1 : 0;
 
         Vector3 position3D = new Vector3(position2D.x, position2D.y, transform.position.z);
-        Debug.DrawLine(position3D, position3D + transform.up * maxRayDistance, sensors[3] == 1 ? Color.green : Color.white);
-        Debug.DrawLine(position3D, position3D + (Vector3)(rightDirection * maxRayDistance), sensors[4] == 1 ? Color.green : Color.white);
-        Debug.DrawLine(position3D, position3D + (Vector3)(leftDirection * maxRayDistance), sensors[5] == 1 ? Color.green : Color.white);
+        Debug.DrawLine(position3D, position3D + transform.up * forwardRay.distance, sensors[3] == 1 ? Color.green : Color.white);
+        Debug.DrawLine(position3D, position3D + (Vector3)(rightDirection * rightRay.distance), sensors[4] == 1 ? Color.green : Color.white);
+        Debug.DrawLine(position3D, position3D + (Vector3)(leftDirection * leftRay.distance), sensors[5] == 1 ? Color.green : Color.white);
     }
 
     //Takes in acceleration and rotation to move
@@ -98,7 +98,7 @@ public class SeekerController : MonoBehaviour
     private void Death()
     {
         CalculateFitness();
-        geneManager.seekerDeath(myBrainIdx, fitness);
+        geneManager.seekerDeath(myBrainIdx, fitness, foodEaten);
 
         gameObject.SetActive(false);
     }
@@ -117,6 +117,7 @@ public class SeekerController : MonoBehaviour
         if (other.tag == "Food")
         {
             energy += 250;
+            foodEaten++; 
         }
     }
 }
