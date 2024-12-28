@@ -78,10 +78,11 @@ public class SeekerController : MonoBehaviour
         sensors[2] = (leftRay.collider != null && leftRay.collider.CompareTag("Border")) ? leftRay.distance / maxRayDistance: 1;
         sensors[5] = (leftRay.collider != null && leftRay.collider.CompareTag("Food")) ? 1 : 0;
 
-        Vector3 position3D = new Vector3(position2D.x, position2D.y, transform.position.z);
-        Debug.DrawLine(position3D, position3D + transform.up * forwardRay.distance, sensors[3] == 1 ? Color.green : Color.white);
-        Debug.DrawLine(position3D, position3D + (Vector3)(rightDirection * rightRay.distance), sensors[4] == 1 ? Color.green : Color.white);
-        Debug.DrawLine(position3D, position3D + (Vector3)(leftDirection * leftRay.distance), sensors[5] == 1 ? Color.green : Color.white);
+        //Visual Raycasts
+        // Vector3 position3D = new Vector3(position2D.x, position2D.y, transform.position.z);
+        // Debug.DrawLine(position3D, position3D + transform.up * forwardRay.distance, sensors[3] == 1 ? Color.green : Color.white);
+        // Debug.DrawLine(position3D, position3D + (Vector3)(rightDirection * rightRay.distance), sensors[4] == 1 ? Color.green : Color.white);
+        // Debug.DrawLine(position3D, position3D + (Vector3)(leftDirection * leftRay.distance), sensors[5] == 1 ? Color.green : Color.white);
     }
 
     //Takes in acceleration and rotation to move

@@ -8,6 +8,14 @@ public class NeatGenome
     public List<ConGene> conGenes;
     HashSet<Tuple<int, int>> existingConnections;
 
+    //Parameters
+    float newNodeProb = 3f;
+    float newConProb = 5f;
+    float weightMutationProb = 80f;
+    float perturbWeightProb = 90f;
+    float preturbWeightThresh = 0.1f;
+
+
     public NeatGenome()
     {
         nodeGenes = new List<NodeGene>();
@@ -23,8 +31,6 @@ public class NeatGenome
     public void MutateGenome()
     {
         //Structural Mutations
-        float newNodeProb = 3f;
-        float newConProb = 5f;
         float sRoll = UnityEngine.Random.Range(0f, 100f);
 
         if (sRoll <= newNodeProb)
@@ -39,17 +45,15 @@ public class NeatGenome
         //Weight Mutation
         foreach (ConGene con in conGenes)
         {
-            float weightMutationProb = 80;
             float wRoll = UnityEngine.Random.Range(0f, 100f);
 
             if (wRoll <= weightMutationProb)
             {
-                float perturbWeightProb = 90;
                 float tRoll = UnityEngine.Random.Range(0f, 100f);
 
                 if (tRoll <= perturbWeightProb)
                 {
-                    con.weight += UnityEngine.Random.Range(-0.1f, 0.1f);
+                    con.weight += UnityEngine.Random.Range(-preturbWeightThresh, preturbWeightThresh);
                 }
                 else //10% chance to apply random weight
                 {

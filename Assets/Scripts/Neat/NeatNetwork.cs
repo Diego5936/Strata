@@ -10,12 +10,14 @@ public class NeatNetwork
     List<Node> hiddenNodes;
     List<Connection> allConnections;
 
+    public int id;
     public float fitness;
     public int foodEaten;
     public float selectionProb;
-
-    public NeatNetwork(int inp, int oup, int hid)
+    
+    public NeatNetwork(int id, int inp, int oup, int hid)
     {
+        this.id = id;
         myGenome = CreateInitialGenome(inp, oup, hid);
 
         allNodes = new List<Node>();
@@ -27,8 +29,9 @@ public class NeatNetwork
         CreateNetwork();
     }
 
-    public NeatNetwork(NeatGenome genome)
+    public NeatNetwork(int id, NeatGenome genome)
     {
+        this.id = id;
         myGenome = genome;
 
         allNodes = new List<Node>();

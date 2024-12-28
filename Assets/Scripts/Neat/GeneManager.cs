@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GeneManager : MonoBehaviour
@@ -16,11 +15,16 @@ public class GeneManager : MonoBehaviour
     public int inputNodes = 6;
     public int outputNodes = 2;
     public int hiddenNodes = 0;
+    public float c1 = 1f;
+    public float c2 = 1f;
+    public float c3 = 3f;
 
     //Species
     public List<NeatSpecies> allSpecies;
-    public Dictionary<NeatNetwork, NeatSpecies> speciesDic;
-    public float compThreshold = 3;
+    public Dictionary<int, NeatSpecies> speciesDic = new Dictionary<int, NeatSpecies>();
+    public int targetSpecies = 5;
+    public float compThreshold = 0.7f;
+
 
     //Current Session
     [Header("Session Settings")]
@@ -71,8 +75,7 @@ public class GeneManager : MonoBehaviour
     {
         for (int i = 0; i < startingPopulation; i++)
         {
-            allNetworks[i] = new NeatNetwork(inputNodes, outputNodes, hiddenNodes);
-            allNetworks[i].MutateNetwork();
+            allNetworks[i] = new NeatNetwork(i, inputNodes, outputNodes, hiddenNodes);
 
             GameObject seeker = Instantiate(seekerPrefab, Utils.RandomPosition(), Quaternion.identity);
             SeekerController seekerController = seeker.GetComponent<SeekerController>();
@@ -115,7 +118,7 @@ public class GeneManager : MonoBehaviour
         CalculateFitnessSharing();
         SetNewPopulationNetworks();
         RespawnPopulation();
-
+      
         currentGeneration++;
     }
 
@@ -124,10 +127,7 @@ public class GeneManager : MonoBehaviour
         //Resets existing 
         speciesCount = 0;
         allSpecies.Clear();
-        if (speciesDic == null)
-            speciesDic = new Dictionary<NeatNetwork, NeatSpecies>();
-        else
-            speciesDic.Clear();
+        speciesDic.Clear();
 
         //Matches networks to species or creates new species
         foreach (NeatNetwork seeker in allNetworks)
@@ -136,15 +136,19 @@ public class GeneManager : MonoBehaviour
 
             foreach (NeatSpecies species in allSpecies)
             {
-                float compDist = NeatUtils.GetCompatabilityDistance(seeker.myGenome, species.mascot.myGenome);
+                float compDist = NeatUtils.GetCompatabilityDistance(seeker.myGenome, species.mascot.myGenome, c1, c2, c3);
 
                 if (compDist < compThreshold)
                 {
                     species.members.Add(seeker);
-                    speciesDic[seeker] = species;
+                    speciesDic[seeker.id] = species;
 
-                    species.mascot = seeker.fitness > species.mascot.fitness ? seeker : species.mascot;
-                    species.speciesFitness += seeker.fitness;
+                    if (seeker.fitness > species.mascot.fitness)
+                    {
+                        species.mascot = seeker;
+                    }
+
+                    species.fitness += seeker.fitness;
 
                     found = true;
                     break;
@@ -153,24 +157,46 @@ public class GeneManager : MonoBehaviour
 
             if (!found)
             {
-                NeatSpecies newSpecies = new NeatSpecies(seeker);
+                NeatSpecies newSpecies = new NeatSpecies(seeker, speciesCount);
                 allSpecies.Add(newSpecies);
-                speciesDic.Add(seeker, newSpecies);
+                speciesDic[seeker.id] = newSpecies;
                 speciesCount++;
             }
+
         }
+
+        // AdjustCompThreshold();
+    }
+
+    //Adjusts species to a designated amount
+    void AdjustCompThreshold()
+    {
+        float compThreshMin = 0.05f;
+        float compThreshMax = 5f;
+        float compThreshStep = 0.05f;
+
+        if (speciesCount < targetSpecies)
+        {
+            compThreshold -= compThreshStep;
+        }
+        else if (speciesCount > targetSpecies)
+        {
+            compThreshold += compThreshStep; 
+        }
+
+        compThreshold = Mathf.Clamp(compThreshold, compThreshMin, compThreshMax); 
     }
 
     void CalculateFitnessSharing()
     {
         foreach (NeatNetwork seeker in allNetworks)
         {
-            NeatSpecies thisSpecies = speciesDic[seeker];
+            NeatSpecies thisSpecies = speciesDic[seeker.id];
             seeker.fitness /= thisSpecies.members.Count;
 
             //Probabilty of being selected as a parent for crossover
-            seeker.selectionProb = thisSpecies.speciesFitness > 0 ?
-                                    seeker.fitness / thisSpecies.speciesFitness : 0;
+            seeker.selectionProb = thisSpecies.fitness > 0 ?
+                                    seeker.fitness / thisSpecies.fitness : 0;
         }
     }
 
@@ -179,6 +205,7 @@ public class GeneManager : MonoBehaviour
         List<NeatNetwork> newNetworks = new List<NeatNetwork>();
         int addedMembers = 0;
 
+        int newPopId = 0;
         foreach (NeatSpecies species in allSpecies)
         {
             //Remove weakest organisms
@@ -198,12 +225,14 @@ public class GeneManager : MonoBehaviour
             //Leave species champion untouched
             if (species.members.Count > 5)
             {
-                newNetworks.Add(species.members.First());
+                NeatNetwork champion = species.members.First();
+                champion.id = newPopId++;
+                newNetworks.Add(champion);
                 addedMembers++;
             }
 
             //Crossover
-            int offspringNum = Mathf.FloorToInt(species.speciesFitness / populationFitness * startingPopulation);
+            int offspringNum = Mathf.FloorToInt(species.fitness / populationFitness * startingPopulation);
             int justMutateNum = Mathf.FloorToInt(offspringNum * justMutatePercent);
 
             for (int i = 0; i < offspringNum; i++)
@@ -222,7 +251,7 @@ public class GeneManager : MonoBehaviour
 
                     NeatGenome offspringGenome = NeatUtils.Crossover(parent1.myGenome, parent2.myGenome,
                                                                     parent1.fitness, parent2.fitness);
-                    offspring = new NeatNetwork(offspringGenome);
+                    offspring = new NeatNetwork(newPopId++, offspringGenome);
                 }
 
                 offspring.MutateNetwork();
@@ -231,7 +260,7 @@ public class GeneManager : MonoBehaviour
             }
         }
 
-        allSpecies.Sort((a, b) => b.speciesFitness.CompareTo(a.speciesFitness));
+        allSpecies.Sort((a, b) => b.fitness.CompareTo(a.fitness));
         while (addedMembers < startingPopulation)
         {
             NeatSpecies bestSpecies = allSpecies.First();
@@ -241,7 +270,7 @@ public class GeneManager : MonoBehaviour
 
             NeatGenome offspringGenome = NeatUtils.Crossover(parent1.myGenome, parent2.myGenome,
                                                             parent1.fitness, parent2.fitness);
-            NeatNetwork offspring = new NeatNetwork(offspringGenome);
+            NeatNetwork offspring = new NeatNetwork(newPopId++, offspringGenome);
 
             offspring.MutateNetwork();
             newNetworks.Add(offspring);
@@ -276,7 +305,7 @@ public class GeneManager : MonoBehaviour
             GameObject seeker = allSeekers[i];
             SeekerController seekerController = seeker.GetComponent<SeekerController>();
 
-            Color color = speciesDic[seekerController.myNetwork].speciesColor;
+            Color color = speciesDic[seekerController.myNetwork.id].color;
             seekerController.ResetSeeker(i, allNetworks[i], inputNodes, color);
         }
 
@@ -322,19 +351,22 @@ public static class InnovationTracker
 
 public class NeatSpecies
 {
+    public int id;
+
     public NeatNetwork mascot;
     public List<NeatNetwork> members;
-    public float speciesFitness;
-    public Color speciesColor;
+    public float fitness;
+    public Color color;
 
-    public NeatSpecies(NeatNetwork startingMember)
+    public NeatSpecies(NeatNetwork startingMember, int id)
     {
+        this.id = id;
         mascot = startingMember;
         members = new List<NeatNetwork>{startingMember};
 
-        speciesFitness = startingMember.fitness;
-        speciesColor = new Color(UnityEngine.Random.Range(0f,255f)/255f, 
-                                UnityEngine.Random.Range(0f,255f)/255f, 
-                                UnityEngine.Random.Range(0f,255f)/255f);
+        fitness = startingMember.fitness;
+        color = new Color(UnityEngine.Random.Range(0f,255f)/255f, 
+                            UnityEngine.Random.Range(0f,255f)/255f, 
+                            UnityEngine.Random.Range(0f,255f)/255f);        
     }
 }

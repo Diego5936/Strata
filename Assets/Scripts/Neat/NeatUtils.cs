@@ -52,14 +52,14 @@ public class NeatUtils
     }
 
     //Calculate the compatibility of two genomes
-    public static float GetCompatabilityDistance(NeatGenome firstGenome, NeatGenome secondGenome)
+    public static float GetCompatabilityDistance(NeatGenome firstGenome, NeatGenome secondGenome, float c1, float c2, float c3)
     {
-        float c1 = 1, c2 = 1, c3 = 0.4f;
         (int disjoint, int excess, float aWd) = GetDisjointExcessAWD(firstGenome.conGenes, secondGenome.conGenes); 
         
         int N = Math.Max(firstGenome.conGenes.Count, secondGenome.conGenes.Count);
 
         float compDis = c1*excess/N + c2*disjoint/N + c3*aWd;
+        // UnityEngine.Debug.Log($"Excess: {excess}, Disjoint: {disjoint}, AWD: {aWd}, CompDist: {compDis}");
         return compDis;
     }
 
