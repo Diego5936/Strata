@@ -113,6 +113,9 @@ public class GeneManager : MonoBehaviour
             champFitness = populationBest.fitness;
             champGeneration = currentGeneration;
             foodEaten = populationBest.foodEaten;
+
+            //Save its genome for reuse
+            Utils.SaveGenome(populationBest.myGenome, 0);
         }
 
         //Speciation and Respawn

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Unity.Collections;
@@ -23,6 +24,88 @@ public class Utils
         return newPosition;
     }
 
+    //Saves the best genome in simulation
+    public static void SaveGenome(NeatGenome genome, int iter)
+    {
+        NeatGenomeJson genomeJson = new NeatGenomeJson();
+
+        foreach (NodeGene node in genome.nodeGenes)
+        {
+            NodeGeneJson nodeJson = new NodeGeneJson();
+
+            nodeJson.id = node.id;
+            nodeJson.layer = (NodeGeneJson.LAYER)node.layer;
+
+            genomeJson.nodeGenes.Add(nodeJson);
+        }
+
+        foreach (ConGene con in genome.conGenes)
+        {
+            ConGeneJson conJson = new ConGeneJson();
+
+            conJson.inputNode = con.inputNode;
+            conJson.outputNode = con.outputNode;
+            conJson.weight = con.weight;
+            conJson.isEnabled = con.isEnabled;
+            conJson.innovNum = con.innovNum;
+
+            genomeJson.conGenes.Add(conJson);
+        }
+
+        string json = JsonUtility.ToJson(genomeJson);
+
+        Debug.Log(json);
+
+        File.WriteAllText(Application.dataPath + $"/ChosenOne_Iter{iter}.txt", json);
+    }
+
+    //Loads best genome saved
+    public static NeatGenome LoadGenome()
+    {
+        string genomeString = File.ReadAllText(Application.dataPath + "/save.txt");
+
+        NeatGenomeJson savedGenome = JsonUtility.FromJson<NeatGenomeJson>(genomeString);
+        NeatGenome loadedGenome = new NeatGenome();
+
+        foreach(NodeGeneJson savedNode in savedGenome.nodeGenes)
+        {
+            NodeGene newNode = new NodeGene(savedNode.id, (NodeGene.LAYER)savedNode.layer);
+            loadedGenome.nodeGenes.Add(newNode);
+        }
+        foreach(ConGeneJson savedCon in savedGenome.conGenes)
+        {
+            ConGene newCon = new ConGene(savedCon.inputNode, savedCon.outputNode, savedCon.weight, savedCon.isEnabled, savedCon.innovNum);
+            loadedGenome.conGenes.Add(newCon);
+        }
+
+        return loadedGenome;
+    }
+
+    //________________________________________________VISUALIZATION USE
+    //Creates text files with population information per generation
+    public static void SaveGenerationSpecies(NeatSpecies[] allSpecies, int currentGen)
+    {
+        StringBuilder generation = new StringBuilder();
+
+        generation.Append($"Generation {currentGen}\n");
+        generation.Append($"All Species Count {allSpecies.Length}:\n\n");
+        foreach (NeatSpecies species in allSpecies)
+        {
+            generation.Append($"Species {species.id}, Gen Created: {species.generationEmergence}, Members#: {species.members.Count}, MaxFit: {species.maxFitness}, Stagnation {species.stagnationCount} \n");
+            generation.Append($"\tMascot:\n");
+            generation.Append($"{PrintNetwork(species.mascot.myGenome, 1)}\n");
+
+            foreach (NeatNetwork seeker in species.members)
+            {
+                generation.Append($"\tSeeker {seeker.id}, Fitness: {seeker.fitness}\n");
+                generation.Append($"\t{PrintNetwork(seeker.myGenome, 1)}\n");
+            }
+        }
+
+        File.WriteAllText(Application.dataPath + $"/SpeciesIn_{currentGen}.txt", generation.ToString());
+    }
+
+    //Returns a network's hidden nodes and connections as a string
     public static string PrintNetwork(NeatGenome genome, int indent)
     {
         StringBuilder networkStr = new StringBuilder();
@@ -49,6 +132,7 @@ public class Utils
         return networkStr.ToString();
     }
 
+    //Adds n amount of indents to a string
     static string AppendIndents(int n)
     {
         StringBuilder indent = new StringBuilder();
@@ -60,43 +144,30 @@ public class Utils
 
         return indent.ToString();
     }
+}
 
-    public static void SaveGenerationSpecies(NeatSpecies[] allSpecies, int currentGen)
-    {
-        StringBuilder generation = new StringBuilder();
+//Json nodes and cons for IO
+[System.Serializable]
+public class NeatGenomeJson
+{
+    public List<NodeGeneJson> nodeGenes = new List<NodeGeneJson>();
+    public List<ConGeneJson> conGenes = new List<ConGeneJson>();
+}
 
-        generation.Append($"Generation {currentGen}\n");
-        generation.Append($"All Species Count {allSpecies.Length}:\n\n");
-        foreach (NeatSpecies species in allSpecies)
-        {
-            generation.Append($"Species {species.id}, Gen Created: {species.generationEmergence}, Members#: {species.members.Count}, MaxFit: {species.maxFitness}, Stagnation {species.stagnationCount} \n");
-            generation.Append($"\tMascot:\n");
-            generation.Append($"{PrintNetwork(species.mascot.myGenome, 1)}\n");
+[System.Serializable]
+public class NodeGeneJson
+{
+    public int id;
+    public enum LAYER {Input, Output, Hidden};
+    public LAYER layer;
+}
 
-            foreach (NeatNetwork seeker in species.members)
-            {
-                generation.Append($"\tSeeker {seeker.id}, Fitness: {seeker.fitness}\n");
-                generation.Append($"\t{PrintNetwork(seeker.myGenome, 1)}\n");
-            }
-        }
-
-        File.WriteAllText(Application.dataPath + $"/SpeciesIn_{currentGen}.txt", generation.ToString());
-        SaveForChat(generation.ToString());
-    }
-
-    static StringBuilder allData = new StringBuilder();
-
-    public static void SaveForChat(string generation)
-    {
-        allData.Append($"{generation}\n\n");
-        
-        File.WriteAllText(Application.dataPath + $"/AllData.txt", allData.ToString());
-    }
-
-    public static void SaveGenerationSeekers(NeatNetwork seeker, int startingPopulations, int currentGen)
-    {
-        StringBuilder generation = new StringBuilder();
-
-        File.WriteAllText(Application.dataPath + $"/SeekersIn_{currentGen}.txt", generation.ToString());
-    }
+[System.Serializable]
+public class ConGeneJson
+{
+    public int inputNode;
+    public int outputNode;
+    public float weight;
+    public bool isEnabled;
+    public int innovNum;
 }
