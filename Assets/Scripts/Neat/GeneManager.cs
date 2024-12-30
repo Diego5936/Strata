@@ -22,20 +22,22 @@ public class GeneManager : MonoBehaviour
     //Species
     public List<NeatSpecies> allSpecies;
     public Dictionary<int, NeatSpecies> speciesDic = new Dictionary<int, NeatSpecies>();
+    int globalSpeciesID = 0;
     public int targetSpecies = 5;
     public float compThreshold = 0.7f;
 
 
     //Current Session
-    [Header("Session Settings")]
+    [Header("Session Parameters")]
     public int startingPopulation;
     public float cullPercent = 0.5f;
     float justMutatePercent = 0.25f;
+    public int stagnationThresh = 15;
 
     [Header("Current Session")]
     public int currentGeneration = 0;
     public int currentAlive;
-    public int speciesCount;
+    public int speciesCount = 0;
 
     float populationFitness;
     List<float> allAvgPopFitness = new List<float>();
@@ -124,10 +126,7 @@ public class GeneManager : MonoBehaviour
 
     void SpeciatePopulation()
     {
-        //Resets existing 
-        speciesCount = 0;
-        allSpecies.Clear();
-        speciesDic.Clear();
+        UpdateSpecies();
 
         //Matches networks to species or creates new species
         foreach (NeatNetwork seeker in allNetworks)
@@ -157,15 +156,54 @@ public class GeneManager : MonoBehaviour
 
             if (!found)
             {
-                NeatSpecies newSpecies = new NeatSpecies(seeker, speciesCount);
+                NeatSpecies newSpecies = new NeatSpecies(seeker, globalSpeciesID, currentGeneration);
                 allSpecies.Add(newSpecies);
                 speciesDic[seeker.id] = newSpecies;
+
+                globalSpeciesID++;
                 speciesCount++;
             }
 
         }
 
+        //Remove all species that were not assigned any members
+        allSpecies.RemoveAll(species => species.members.Count == 0);
+        speciesCount = allSpecies.Count;
+
         // AdjustCompThreshold();
+    }
+
+    void UpdateSpecies()
+    {
+        //Deattaches seekers from species
+        speciesDic.Clear();
+        List<int> speciesToRemove = new List<int>();
+
+        foreach (NeatSpecies species in allSpecies)
+        {
+            species.members.Clear();
+            species.fitness = 0;
+
+            //Updates stagnation
+            if (species.mascot.fitness > species.maxFitness)
+            {
+                species.maxFitness = species.mascot.fitness;
+                species.stagnationCount = 0;
+            }
+            else
+            {
+                species.stagnationCount++;
+            }
+
+            if (species.stagnationCount >= stagnationThresh)
+            {
+                speciesToRemove.Add(species.id);
+            }
+        }
+
+        //Removes stagnant species
+        allSpecies.RemoveAll(species => speciesToRemove.Contains(species.id));
+        speciesCount = allSpecies.Count;
     }
 
     //Adjusts species to a designated amount
@@ -352,13 +390,17 @@ public static class InnovationTracker
 public class NeatSpecies
 {
     public int id;
-
     public NeatNetwork mascot;
     public List<NeatNetwork> members;
     public float fitness;
     public Color color;
 
-    public NeatSpecies(NeatNetwork startingMember, int id)
+    //Historical markers
+    public int generationEmergence;
+    public float maxFitness;
+    public int stagnationCount;
+
+    public NeatSpecies(NeatNetwork startingMember, int id, int currentGen)
     {
         this.id = id;
         mascot = startingMember;
@@ -367,6 +409,10 @@ public class NeatSpecies
         fitness = startingMember.fitness;
         color = new Color(UnityEngine.Random.Range(0f,255f)/255f, 
                             UnityEngine.Random.Range(0f,255f)/255f, 
-                            UnityEngine.Random.Range(0f,255f)/255f);        
+                            UnityEngine.Random.Range(0f,255f)/255f);    
+
+        generationEmergence = currentGen;
+        maxFitness = mascot.fitness;
+        stagnationCount = 0;
     }
 }
