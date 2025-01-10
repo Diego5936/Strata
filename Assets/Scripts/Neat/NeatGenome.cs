@@ -13,7 +13,7 @@ public class NeatGenome
     float newConProb = 5f;
     float weightMutationProb = 80f;
     float perturbWeightProb = 90f;
-    float preturbWeightThresh = 0.1f;
+    float perturbWeightThresh = 0.1f;
 
 
     public NeatGenome()
@@ -53,7 +53,7 @@ public class NeatGenome
 
                 if (tRoll <= perturbWeightProb)
                 {
-                    con.weight += UnityEngine.Random.Range(-preturbWeightThresh, preturbWeightThresh);
+                    con.weight += UnityEngine.Random.Range(-perturbWeightThresh, perturbWeightThresh);
                 }
                 else //10% chance to apply random weight
                 {

@@ -98,15 +98,11 @@ public class SeekerController : MonoBehaviour
     //Passes seeker stats to GeneManager and disables object
     private void Death()
     {
-        CalculateFitness();
-        geneManager.seekerDeath(myBrainIdx, fitness, foodEaten);
+        float timeAlive = Time.time - startTime;
+
+        geneManager.seekerDeath(myBrainIdx, timeAlive, foodEaten);
 
         gameObject.SetActive(false);
-    }
-
-    private void CalculateFitness()
-    {
-        fitness = Time.time - startTime;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

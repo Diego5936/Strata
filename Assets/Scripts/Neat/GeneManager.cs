@@ -23,8 +23,8 @@ public class GeneManager : MonoBehaviour
     public List<NeatSpecies> allSpecies;
     public Dictionary<int, NeatSpecies> speciesDic = new Dictionary<int, NeatSpecies>();
     int globalSpeciesID = 0;
-    public int targetSpecies = 5;
-    public float compThreshold = 0.7f;
+    public int targetSpecies;
+    public float compThreshold;
 
 
     //Current Session
@@ -115,7 +115,7 @@ public class GeneManager : MonoBehaviour
             foodEaten = populationBest.foodEaten;
 
             //Save its genome for reuse
-            Utils.SaveGenome(populationBest.myGenome, 0);
+            Utils.SaveGenome(populationBest, 0, currentGeneration);
         }
 
         //Speciation and Respawn
@@ -173,7 +173,7 @@ public class GeneManager : MonoBehaviour
         allSpecies.RemoveAll(species => species.members.Count == 0);
         speciesCount = allSpecies.Count;
 
-        // AdjustCompThreshold();
+        AdjustCompThreshold();
     }
 
     void UpdateSpecies()
@@ -212,7 +212,7 @@ public class GeneManager : MonoBehaviour
     //Adjusts species to a designated amount
     void AdjustCompThreshold()
     {
-        float compThreshMin = 0.05f;
+        float compThreshMin = 0.001f;
         float compThreshMax = 5f;
         float compThreshStep = 0.05f;
 
@@ -353,10 +353,15 @@ public class GeneManager : MonoBehaviour
         currentAlive = startingPopulation;
     }
 
-    public void seekerDeath(int brainIdx, float fitness, int foodEaten)
+    public void seekerDeath(int brainIdx, float timeAlive, int foodEaten)
     {
-        allNetworks[brainIdx].fitness = fitness;
-        allNetworks[brainIdx].foodEaten = foodEaten;
+        NeatNetwork network = allNetworks[brainIdx];
+
+        //Fitness Function
+        float fitness = timeAlive;
+
+        network.fitness = fitness;
+        network.foodEaten = foodEaten;
         currentAlive--;
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Unity.Collections;
 using UnityEngine;
 
 public class Utils
@@ -9,10 +8,10 @@ public class Utils
     public static Vector3 RandomPosition()
     {
         float offset = 2;
-        float minX = -100 + offset;
-        float maxX = 100 - offset;
-        float minY = -40 + offset;
-        float maxY = 40 - offset;
+        float minX = -200 + offset;
+        float maxX = 200 - offset;
+        float minY = -80 + offset;
+        float maxY = 80 - offset;
 
         Vector3 newPosition;
 
@@ -24,9 +23,11 @@ public class Utils
         return newPosition;
     }
 
-    //Saves the best genome in simulation
-    public static void SaveGenome(NeatGenome genome, int iter)
+    //Saves the best genome in all simulations
+    public static void SaveGenome(NeatNetwork network, int iter, int currentGen)
     {
+        //Genome processing
+        NeatGenome genome = network.myGenome;
         NeatGenomeJson genomeJson = new NeatGenomeJson();
 
         foreach (NodeGene node in genome.nodeGenes)
@@ -53,10 +54,15 @@ public class Utils
         }
 
         string json = JsonUtility.ToJson(genomeJson);
-
         Debug.Log(json);
 
-        File.WriteAllText(Application.dataPath + $"/ChosenOne_Iter{iter}.txt", json);
+        //Include stats in save for analysis
+        StringBuilder save = new StringBuilder();
+
+        save.Append($"Fitness: {network.fitness} \nGeneration: {currentGen}\n\n");
+        save.Append(json);
+
+        File.WriteAllText(Application.dataPath + $"/ChosenOne_Iter{iter}.txt", save.ToString());
     }
 
     //Loads best genome saved

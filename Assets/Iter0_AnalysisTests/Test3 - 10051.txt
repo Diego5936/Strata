@@ -1,3 +1,12 @@
+Simulation Ran for 18 generations
+
+NewNode 3%
+NewCon 5%
+c1 1
+c2 1
+c3 3
+CompThresh 0.05
+
 Fitness: 10051.18 
 Generation: 14
 

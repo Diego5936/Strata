@@ -250,8 +250,8 @@ Transform:
   m_GameObject: {fileID: 454860036}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 100, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 80, z: 1}
+  m_LocalPosition: {x: 200, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 160, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 749408154}
@@ -414,7 +414,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 43.90678
+  orthographic size: 90.67
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -517,11 +517,12 @@ MonoBehaviour:
   hiddenNodes: 0
   c1: 1
   c2: 1
-  c3: 3
-  targetSpecies: 5
+  c3: 0.4
+  targetSpecies: 15
   compThreshold: 0.5
-  startingPopulation: 100
+  startingPopulation: 200
   cullPercent: 0.5
+  stagnationThresh: 15
   currentGeneration: 0
   currentAlive: 0
   speciesCount: 0
@@ -618,8 +619,8 @@ Transform:
   m_GameObject: {fileID: 1274543435}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 40, z: 0}
-  m_LocalScale: {x: 200, y: 0.5, z: 1}
+  m_LocalPosition: {x: 0, y: 80, z: 0}
+  m_LocalScale: {x: 400, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 749408154}
@@ -748,8 +749,8 @@ Transform:
   m_GameObject: {fileID: 1289643984}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -40, z: 0}
-  m_LocalScale: {x: 200, y: 0.5, z: 1}
+  m_LocalPosition: {x: 0, y: -80, z: 0}
+  m_LocalScale: {x: 400, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 749408154}
@@ -878,8 +879,8 @@ Transform:
   m_GameObject: {fileID: 1874828857}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -100, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 80, z: 1}
+  m_LocalPosition: {x: -200, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 160, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 749408154}
